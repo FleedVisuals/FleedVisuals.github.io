@@ -47,6 +47,11 @@
   }
   ::selection{background:var(--lava); color:#1A0F08;}
   [hidden]{display:none !important;}
+  html{scrollbar-width:thin; scrollbar-color:var(--lava-deep) var(--bg-panel);}
+  ::-webkit-scrollbar{width:9px; height:9px;}
+  ::-webkit-scrollbar-track{background:var(--bg-panel);}
+  ::-webkit-scrollbar-thumb{background:var(--lava-deep); border-radius:5px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--lava);}
 
   /* ---------- COLOR THEMES (palette picker) ---------- */
   html[data-theme-color="white"]{ --lava-deep:#A8A8A8; --lava:#E8E8E8; --lava-bright:#FFFFFF; }
@@ -250,7 +255,7 @@
 
   /* ---------- HERO ---------- */
   .hero{padding:76px 0 60px;}
-  .hero-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:56px; align-items:center;}
+  .hero-grid{max-width:760px;}
   .eyebrow-row{display:flex; align-items:center; gap:10px; color:var(--muted); font-size:.85rem; margin-bottom:18px;}
   .dot{width:7px; height:7px; border-radius:50%; background:var(--ok); box-shadow:0 0 0 3px rgba(111,207,151,.15);}
   .hero h1{font-size:clamp(2.2rem, 4.6vw, 3.6rem); font-weight:800;}
@@ -572,6 +577,11 @@
   #adminDeleteBtn.restore{background:rgba(111,207,151,.12); border-color:#2f7a52; color:var(--ok);}
   .admin-card-block{background:var(--bg-panel); border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:18px;}
   .settings-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+  .order-row{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:var(--bg-panel-2); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:8px;}
+  .order-row .info b{color:var(--lava-bright);}
+  .order-row .info .t{display:block; font-size:.75rem; color:var(--muted); margin-top:2px;}
+  .order-actions{display:flex; gap:8px;}
+  .order-actions .btn{padding:8px 12px; font-size:.8rem;}
   @media (max-width:700px){ .settings-grid{grid-template-columns:1fr 1fr;} }
   .admin-card-title{font-family:var(--font-display); font-weight:700; font-size:.9rem; margin-bottom:12px;}
   .admin-toolbar{display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap;}
@@ -612,7 +622,8 @@
   .coin-balance-label{font-size:.78rem; color:var(--muted);}
 
   /* ---------- PRIZES SHOWCASE ---------- */
-  .prizes-row{display:flex; gap:14px; overflow-x:auto; padding-bottom:8px; scroll-snap-type:x proximity;}
+  .prizes-row{display:flex; gap:14px; overflow-x:auto; padding-bottom:8px; scroll-snap-type:x proximity; scrollbar-width:none; -ms-overflow-style:none;}
+  .prizes-row::-webkit-scrollbar{display:none; height:0; width:0;}
   .prize-card{
     flex:0 0 168px; scroll-snap-align:start; background:var(--bg-panel); border:1px solid var(--line); border-radius:16px;
     padding:20px 18px; transition:transform .2s ease, border-color .2s;
@@ -697,8 +708,6 @@
 
   /* ---------- RESPONSIVE ---------- */
   @media (max-width:880px){
-    .hero-grid{grid-template-columns:1fr;}
-    .demo{max-width:420px; margin:0 auto;}
     .feat-list{grid-template-columns:1fr;}
     .tariffs-grid{grid-template-columns:1fr 1fr;}
     .reqs{grid-template-columns:1fr 1fr;}
@@ -868,17 +877,6 @@
           <a href="#tariffs" class="btn btn-ghost fx-sand"><span data-i18n="hero.cta2">Смотреть тарифы</span></a>
         </div>
         <div class="req-line"><span data-i18n="hero.req">Windows 10 / 11, 64-бит · 2–4 ГБ ОЗУ · Minecraft 1.21.11</span></div>
-      </div>
-      <div class="demo" aria-hidden="true">
-        <div class="demo-hud">
-          <div class="hud-tag"><span data-i18n="hero.hudtag">визуал: включён</span></div>
-          <div class="hud-crosshair"><i></i><i></i></div>
-          <div class="hud-fx f1" style="top:46%; left:48%;"></div>
-          <div class="hud-fx f2" style="top:52%; left:52%;"></div>
-          <div class="hud-fx f3" style="top:49%; left:50%;"></div>
-          <div class="demo-cape"></div>
-          <div class="demo-caption"><span>FPS 240</span><span>FunTime · Fleed Visuals</span></div>
-        </div>
       </div>
     </div>
   </section>
@@ -1229,21 +1227,8 @@
       <div class="field"><label for="regEmail">Почта</label><input id="regEmail" type="email" autocomplete="email" placeholder="you@mail.ru"></div>
       <div class="field"><label for="regPass">Пароль</label><input id="regPass" type="password" autocomplete="new-password"></div>
       <div class="form-err" id="regErr"></div>
-      <button class="btn btn-lava btn-block fx-sand" id="regSubmit">Продолжить</button>
+      <button class="btn btn-lava btn-block fx-sand" id="regSubmit">Создать аккаунт</button>
       <div class="switch-row">Уже есть аккаунт? <button id="toLogin">Войти</button></div>
-    </div>
-    <div id="authVerifyView" style="display:none;">
-      <h3>Подтвердите почту</h3>
-      <p class="sub">Мы отправили 6-значный код на <b id="verifyEmailShown">—</b>.</p>
-      <div class="demo-mail-note" id="verifyDemoNote">
-        Демо-режим: у этого сайта нет почтового сервера, поэтому код показан прямо здесь, а не в письме — <b id="verifyDemoCode">000000</b>
-      </div>
-      <div class="field"><label for="verifyCodeInput">Код из письма</label>
-        <input id="verifyCodeInput" inputmode="numeric" maxlength="6" placeholder="000000" style="letter-spacing:.3em; text-align:center; font-family:var(--font-display); font-size:1.1rem;">
-      </div>
-      <div class="form-err" id="verifyErr"></div>
-      <button class="btn btn-lava btn-block fx-sand" id="verifySubmit">Подтвердить и создать аккаунт</button>
-      <div class="switch-row"><button id="verifyResend">Отправить код ещё раз</button> · <button id="verifyBack">Назад</button></div>
     </div>
   </div>
 </div>
@@ -1303,8 +1288,8 @@
       <button class="btn btn-lava btn-block fx-sand" id="paySubmit">Оплатить</button>
     </div>
     <div id="payFunpayView" hidden>
-      <h3>Тариф активирован ✅</h3>
-      <p class="sub">Вы выбрали оплату через FunPay — нажмите кнопку ниже, чтобы перейти на страницу продавца и завершить оплату.</p>
+      <h3>Заявка создана ⏳</h3>
+      <p class="sub">Перейдите на FunPay и оплатите — после этого администратор проверит платёж и сам выдаст тариф. Обычно это быстро, но не мгновенно.</p>
       <a id="payFunpayLink" href="https://funpay.com/users/19321754/" target="_blank" rel="noopener" class="btn btn-lava btn-block fx-sand">Перейти на FunPay →</a>
       <button class="btn btn-ghost btn-block fx-sand" data-close="payOverlay" style="margin-top:10px;">Закрыть</button>
     </div>
@@ -1432,6 +1417,12 @@
       <button class="btn btn-lava btn-block fx-sand" id="setSaveBtn">Сохранить настройки</button>
     </div>
 
+    <div class="admin-card-block">
+      <div class="admin-card-title">💳 Заявки на подтверждение (FunPay) <span class="admin-pill" id="adminOrdersBadge" style="margin-left:6px;">0</span></div>
+      <p class="pp-hint" style="margin:0 0 14px;">Покупатель уже перешёл на FunPay — проверьте платёж там, затем подтвердите заявку здесь, и тариф/сброс HWID выдастся автоматически.</p>
+      <div id="adminOrdersList"><div class="admin-empty">Заявок нет.</div></div>
+    </div>
+
     <div class="admin-toolbar">
       <div class="admin-search"><input type="text" id="adminSearch" placeholder="Поиск по логину или почте…"></div>
       <button class="btn btn-ghost btn-sm fx-sand" id="adminSeedBtn">🎲 Сгенерировать тестовых</button>
@@ -1555,27 +1546,21 @@
 (function(){
   "use strict";
 
-  /* ---------- helpers ---------- */
+  
   function $(sel, root){ return (root||document).querySelector(sel); }
   function $all(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
 
-  /* ---------- performance mode for phones / weak devices ---------- */
+  
   var PERF_LITE = (window.matchMedia && window.matchMedia('(max-width:768px)').matches) ||
                    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
   if(PERF_LITE) document.documentElement.classList.add('perf-lite');
 
-  /* pause every decorative animation while the tab is hidden — saves battery/CPU */
+  
   document.addEventListener('visibilitychange', function(){
     document.documentElement.classList.toggle('anim-paused', document.hidden);
   });
 
-  /* ---------- a short, original synthesized "welcome chime" ----------
-     Real anime sound effects are someone else's copyrighted audio, so this
-     is a small original arpeggio built from oscillators instead — bright/
-     bell-like, in that spirit, but not a copy of anything. Browsers block
-     autoplaying audio until the user has interacted with the page at least
-     once, so on a very first visit it may be silent; that's a browser
-     policy, not a bug. */
+  
   function playWelcomeChime(){
     try{
       var Ctx = window.AudioContext || window.webkitAudioContext;
@@ -1605,7 +1590,7 @@
     }catch(e){}
   }
 
-  /* ---------- DDoS protection check (entry splash) → welcome screen ---------- */
+  
   (function(){
     var el = $('#ddosCheck');
     if(!el) return;
@@ -1637,7 +1622,7 @@
     }, 3550);
   })();
 
-  /* ---------- nav drawer (hamburger menu) ---------- */
+  
   (function(){
     var drawer = $('#navDrawer'), overlay = $('#drawerOverlay'), btn = $('#hamburgerBtn'), closeBtn = $('#navDrawerClose');
     if(!drawer || !btn) return;
@@ -1704,7 +1689,7 @@
     toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 3200);
   }
 
-  /* ---------- lava intensity on scroll ---------- */
+  
   var ticking=false;
   function updateLava(){
     var doc = document.documentElement;
@@ -1718,7 +1703,7 @@
   }, {passive:true});
   updateLava();
 
-  /* ---------- sand particle click effect ---------- */
+  
   var sandColors = ['#D9A066','#C98A4E','#E8B27C','#B9764B','#F0C38F'];
   function burstSand(x, y){
     var n = PERF_LITE ? 9 : 18;
@@ -1758,20 +1743,13 @@
     burstSand(x||( r.left+r.width/2), y);
   });
 
-  /* ---------- data layer ---------- */
+  
   function getUsers(){ return safeGet('fleed_users', {}); }
   function saveUsers(u){ safeSet('fleed_users', u); }
   function getSession(){ return safeGet('fleed_session', null); }
   function setSession(username){ safeSet('fleed_session', username); }
 
-  /* Device fingerprint — the closest a website is technically allowed to get
-     to a "hardware ID". Browsers deliberately do NOT expose real hardware
-     serials (disk/motherboard/MAC) to JavaScript for privacy reasons, so a
-     true OS-level HWID can only be read by the actual desktop launcher, not
-     a web page. What this DOES give you: a value derived from real,
-     detectable signals of this specific browser/device (not Math.random()),
-     so the same device reliably produces the same base fingerprint every
-     time — it only changes when you explicitly reset it (via the salt). */
+  
   function deviceFingerprintRaw(){
     var parts = [
       navigator.userAgent || '',
@@ -1784,7 +1762,6 @@
     return parts.join('|');
   }
   function hashToHex(str){
-    // simple deterministic string hash (FNV-1a), good enough for a display fingerprint
     var h = 0x811c9dc5;
     for(var i=0;i<str.length;i++){
       h ^= str.charCodeAt(i);
@@ -1792,6 +1769,16 @@
     }
     return ('00000000' + h.toString(16)).slice(-8).toUpperCase();
   }
+  
+  function sha256Hex(text){
+    var enc = new TextEncoder().encode(text);
+    return crypto.subtle.digest('SHA-256', enc).then(function(buf){
+      return Array.prototype.map.call(new Uint8Array(buf), function(b){
+        return ('0'+b.toString(16)).slice(-2);
+      }).join('');
+    });
+  }
+
   function genHwid(username, isReset){
     var saltKey = 'fleed_hwid_salt_' + username;
     var salt = safeGet(saltKey, 0);
@@ -1814,13 +1801,9 @@
     var rec = users[uname];
     if(!rec) return null;
     if(rec.deleted){
-      // account was deleted by an admin — kick the session immediately
       setSession(null);
       return null;
     }
-    // self-heal the founder account: if this is the owner's login, force role/uid
-    // even if the account was created before this feature existed, or its email
-    // is missing/blank for some reason.
     if(uname.toLowerCase() === FOUNDER_USERNAME && (rec.role !== 'admin' || rec.uid !== 2)){
       rec.role = 'admin';
       rec.uid = 2;
@@ -1831,14 +1814,11 @@
     return Object.assign({username:uname}, rec);
   }
 
-  /* ---------- overlays ---------- */
+  
   function openOverlay(id){ $('#'+id).classList.add('show'); document.body.style.overflow='hidden'; }
   function closeOverlay(id){ $('#'+id).classList.remove('show'); document.body.style.overflow=''; }
 
-  /* Custom in-page confirm — window.confirm() can be silently blocked inside
-     the sandboxed iframe this page runs in, which is exactly why the delete
-     button looked broken (the code was waiting on a dialog that never
-     appeared). This never relies on native browser dialogs. */
+  
   var confirmPending = null;
   function showConfirm(message, onConfirm, title){
     $('#confirmTitle').textContent = title || 'Подтвердите действие';
@@ -1868,13 +1848,11 @@
     if(e.key==='Escape'){ $all('.overlay.show').forEach(function(o){ closeOverlay(o.id); }); }
   });
 
-  /* ---------- auth views ---------- */
-  function showLoginView(){ $('#authLoginView').style.display='block'; $('#authRegisterView').style.display='none'; $('#authVerifyView').style.display='none'; }
-  function showRegisterView(){ $('#authLoginView').style.display='none'; $('#authRegisterView').style.display='block'; $('#authVerifyView').style.display='none'; }
-  function showVerifyView(){ $('#authLoginView').style.display='none'; $('#authRegisterView').style.display='none'; $('#authVerifyView').style.display='block'; }
+  
+  function showLoginView(){ $('#authLoginView').style.display='block'; $('#authRegisterView').style.display='none'; }
+  function showRegisterView(){ $('#authLoginView').style.display='none'; $('#authRegisterView').style.display='block'; }
   $('#toRegister').addEventListener('click', showRegisterView);
   $('#toLogin').addEventListener('click', showLoginView);
-  $('#verifyBack').addEventListener('click', showRegisterView);
 
   function nextUid(){
     var seq = safeGet('fleed_uid_seq', 1);
@@ -1882,31 +1860,17 @@
     return seq;
   }
 
-  /* founder account — the only one that ever gets the Admin role automatically.
-     NOTE: this is a client-side-only demo (no real backend/database), so this check
-     lives entirely in this page's JS and only recognises the account if it was
-     registered in THIS browser with these exact credentials. */
+  
   var FOUNDER_EMAIL = 'sclerosisgood@gmail.com';
   var FOUNDER_USERNAME = 'kotsafon';
-
-  /* Email verification — HONEST NOTE: a static page with no backend cannot
-     actually send email (that needs a real mail server / API like SMTP or
-     SendGrid, which this environment has neither of). This still builds the
-     full intended UX — generate a code, hold registration until it's
-     confirmed — but since no real email goes out, the code is shown right
-     in the UI so you can actually test the flow. Wire this to a real
-     mailer server-side to make it send for real. */
-  var pendingRegistration = null;
-
-  function genVerifyCode(){
-    return String(Math.floor(100000 + Math.random()*900000));
-  }
+  var FOUNDER_USERNAME_DISPLAY = 'KotSafon'; // the actual case used as the account's login/storage key
 
   $('#regSubmit').addEventListener('click', function(){
     var user = $('#regUser').value.trim();
     var email = $('#regEmail').value.trim();
     var pass = $('#regPass').value;
     var err = $('#regErr');
+    var btn = $('#regSubmit');
     err.textContent='';
     if(user.length < 3){ err.textContent='Логин — минимум 3 символа.'; return; }
     if(!email || email.indexOf('@') === -1 || email.indexOf('.') === -1){ err.textContent='Введите корректную почту.'; return; }
@@ -1914,97 +1878,89 @@
     var users = getUsers();
     if(users[user]){ err.textContent='Такой логин уже занят.'; return; }
 
-    pendingRegistration = { user:user, email:email, pass:pass, code: genVerifyCode() };
-    $('#verifyEmailShown').textContent = email;
-    $('#verifyDemoCode').textContent = pendingRegistration.code;
-    $('#verifyCodeInput').value = '';
-    $('#verifyErr').textContent = '';
-    showVerifyView();
-  });
-
-  function finishRegistration(){
-    var p = pendingRegistration;
-    var users = getUsers();
-    var isFounder = p.email.toLowerCase() === FOUNDER_EMAIL && p.user.toLowerCase() === FOUNDER_USERNAME;
-    users[p.user] = {
-      password: p.pass, email: p.email, hwid:null, tariff:null, expiry:null,
-      uid: isFounder ? 2 : nextUid(),
-      createdAt: Date.now(),
-      role: isFounder ? 'admin' : 'user',
-      banned: null,
-      deleted: false,
-      coins: 0,
-      lastSpin: null,
-      spinHistory: [],
-      purchasedConfigs: [],
-      emailVerified: true
-    };
-    saveUsers(users);
-    setSession(p.user);
-    pendingRegistration = null;
-    closeOverlay('authOverlay');
-    toast(isFounder ? 'Почта подтверждена. Админ-доступ активирован.' : 'Почта подтверждена. Добро пожаловать!');
-    refreshProfileButton();
-    refreshEconomyUI();
-  }
-
-  $('#verifySubmit').addEventListener('click', function(){
-    var errEl = $('#verifyErr');
-    if(!pendingRegistration){ errEl.textContent = 'Сессия регистрации истекла, начните заново.'; showRegisterView(); return; }
-    var entered = $('#verifyCodeInput').value.trim();
-    if(entered !== pendingRegistration.code){ errEl.textContent = 'Неверный код. Проверьте и попробуйте снова.'; return; }
-    finishRegistration();
-  });
-  $('#verifyResend').addEventListener('click', function(){
-    if(!pendingRegistration) return;
-    pendingRegistration.code = genVerifyCode();
-    $('#verifyDemoCode').textContent = pendingRegistration.code;
-    $('#verifyErr').textContent = '';
-    toast('Новый код сгенерирован.');
+    btn.disabled = true; btn.textContent = 'Создаём…';
+    sha256Hex(pass).then(function(hash){
+      var isFounder = email.toLowerCase() === FOUNDER_EMAIL && user.toLowerCase() === FOUNDER_USERNAME;
+      var freshUsers = getUsers();
+      if(freshUsers[user]){ err.textContent='Такой логин уже занят.'; btn.disabled=false; btn.textContent='Создать аккаунт'; return; }
+      freshUsers[user] = {
+        passwordHash: hash, email: email, hwid:null, tariff:null, expiry:null,
+        uid: isFounder ? 2 : nextUid(),
+        createdAt: Date.now(),
+        role: isFounder ? 'admin' : 'user',
+        banned: null,
+        deleted: false,
+        coins: 0,
+        lastSpin: null,
+        spinHistory: [],
+        purchasedConfigs: []
+      };
+      saveUsers(freshUsers);
+      setSession(user);
+      btn.disabled = false; btn.textContent = 'Создать аккаунт';
+      closeOverlay('authOverlay');
+      toast(isFounder ? 'Аккаунт создан. Админ-доступ активирован.' : 'Аккаунт создан. Добро пожаловать!');
+      refreshProfileButton();
+      refreshEconomyUI();
+    }).catch(function(){
+      btn.disabled = false; btn.textContent = 'Создать аккаунт';
+      err.textContent = 'Не удалось создать аккаунт (ошибка шифрования). Попробуйте ещё раз.';
+    });
   });
 
   $('#loginSubmit').addEventListener('click', function(){
     var user = $('#loginUser').value.trim();
     var pass = $('#loginPass').value;
     var err = $('#loginErr');
+    var btn = $('#loginSubmit');
     err.textContent='';
     var users = getUsers();
-    if(!users[user] || users[user].password !== pass){
-      err.textContent='Неверный логин или пароль.';
-      return;
-    }
     var rec = users[user];
-    if(rec.deleted){
-      err.textContent = 'Этот аккаунт был удалён администратором.';
-      return;
-    }
-    if(rec.banned){
-      var permanent = rec.banned.until === 'forever';
-      if(permanent || new Date(rec.banned.until) > new Date()){
-        err.textContent = permanent
-          ? 'Аккаунт заблокирован навсегда. Причина: '+(rec.banned.reason||'нарушение правил')
-          : 'Аккаунт заблокирован до '+new Date(rec.banned.until).toLocaleDateString('ru-RU')+'. Причина: '+(rec.banned.reason||'нарушение правил');
+    if(!rec){ err.textContent='Неверный логин или пароль.'; return; }
+
+    btn.disabled = true; btn.textContent = 'Входим…';
+    sha256Hex(pass).then(function(hash){
+      btn.disabled = false; btn.textContent = 'Войти';
+      var freshUsers = getUsers();
+      var freshRec = freshUsers[user];
+      if(!freshRec || freshRec.passwordHash !== hash){
+        err.textContent='Неверный логин или пароль.';
         return;
-      } else {
-        rec.banned = null;
-        users[user] = rec;
-        saveUsers(users);
       }
-    }
-    // re-affirm founder role on every login, in case local data predates this feature
-    if(rec.email && rec.email.toLowerCase() === FOUNDER_EMAIL && user.toLowerCase() === FOUNDER_USERNAME && rec.role !== 'admin'){
-      rec.role = 'admin';
-      users[user] = rec;
-      saveUsers(users);
-    }
-    setSession(user);
-    closeOverlay('authOverlay');
-    toast('С возвращением, '+user+'!');
-    refreshProfileButton();
-    refreshEconomyUI();
+      if(freshRec.deleted){
+        err.textContent = 'Этот аккаунт был удалён администратором.';
+        return;
+      }
+      if(freshRec.banned){
+        var permanent = freshRec.banned.until === 'forever';
+        if(permanent || new Date(freshRec.banned.until) > new Date()){
+          err.textContent = permanent
+            ? 'Аккаунт заблокирован навсегда. Причина: '+(freshRec.banned.reason||'нарушение правил')
+            : 'Аккаунт заблокирован до '+new Date(freshRec.banned.until).toLocaleDateString('ru-RU')+'. Причина: '+(freshRec.banned.reason||'нарушение правил');
+          return;
+        } else {
+          freshRec.banned = null;
+          freshUsers[user] = freshRec;
+          saveUsers(freshUsers);
+        }
+      }
+      if(freshRec.email && freshRec.email.toLowerCase() === FOUNDER_EMAIL && user.toLowerCase() === FOUNDER_USERNAME && freshRec.role !== 'admin'){
+        freshRec.role = 'admin';
+        freshUsers[user] = freshRec;
+        saveUsers(freshUsers);
+      }
+      setSession(user);
+      closeOverlay('authOverlay');
+      toast('С возвращением, '+user+'!');
+      refreshProfileButton();
+      refreshEconomyUI();
+    }).catch(function(){
+      btn.disabled = false; btn.textContent = 'Войти';
+      err.textContent = 'Ошибка проверки пароля. Попробуйте ещё раз.';
+    });
   });
 
-  /* ---------- profile ---------- */
+  
   function fmtExpiry(u){
     if(!u.tariff) return '—';
     if(u.expiry === 'forever') return 'бессрочно';
@@ -2125,7 +2081,7 @@
     else { label.textContent = 'Профиль'; }
   }
 
-  /* ================= LANGUAGE (RU/EN) ================= */
+  
   (function(){
     var DICT = {
       'nav.features':{ru:'Возможности',en:'Features'},
@@ -2215,7 +2171,7 @@
     applyLanguage(getLang());
   })();
 
-  /* ================= COLOR PALETTE PICKER ================= */
+  
   (function(){
     var THEME_PARTICLES = {
       lava:    { sand:['#D9A066','#C98A4E','#E8B27C','#B9764B','#F0C38F'], ember:['#FFC24D','#FF6B2C','#FFD9A0','#FF9A5A'] },
@@ -2234,7 +2190,6 @@
       window.FLEED_THEME_COLORS = THEME_PARTICLES[name];
       safeSet('fleed_theme_color', name);
       $all('.swatch').forEach(function(sw){ sw.classList.toggle('active', sw.getAttribute('data-theme') === name); });
-      // re-colour already-spawned embers so the change is instant, not just for new ones
       var pal = THEME_PARTICLES[name].ember;
       $all('.ember').forEach(function(e, i){
         var c = pal[i % pal.length];
@@ -2256,13 +2211,13 @@
     applyThemeColor(safeGet('fleed_theme_color', 'lava'));
   })();
 
-  /* ================= FLEED COINS: ROULETTE + MARKET ================= */
+  
   function escapeHtml(str){
     return String(str).replace(/[&<>"']/g, function(c){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
   }
-  /* ================= SITE SETTINGS (admin-editable prices & links) ================= */
+  
   var SITE_SETTINGS_KEY = 'fleed_site_settings';
   var DEFAULT_SITE_SETTINGS = {
     price30: 119, price90: 279, price180: 339, priceForever: 519, priceHwid: 109,
@@ -2386,7 +2341,6 @@
       var winIdx = weightedPick();
       var amount = amountFor(SLOTS[winIdx]);
 
-      // build a long random strip, forcing a known tile (at a fixed position) to be the winner
       var track = $('#rouletteTrack');
       var WIN_POS = 28; // index within the generated strip that will land under the pointer
       var html = '';
@@ -2397,15 +2351,9 @@
       track.style.transition = 'none';
       track.style.transform = 'translateX(0px)';
       track.innerHTML = html;
-      // eslint-disable-next-line no-unused-expressions
       track.offsetHeight; // force reflow so the "transition:none" reset actually applies before animating
 
       var jitter = (Math.random()*30 - 15); // small px jitter so it doesn't land dead-center every time
-      // Position is computed entirely from measured pixels here — no CSS
-      // percentage tricks involved, so this can't drift between browsers.
-      // wrap's horizontal center (where the pointer sits) minus the winning
-      // tile's own center (at rest, before any transform) = how far left
-      // the track must move so that tile ends up under the pointer.
       var wrapWidth = $('.roulette-strip-wrap').clientWidth || 600;
       var target = (wrapWidth/2) - (WIN_POS * STEP + TILE_W/2) + jitter;
       requestAnimationFrame(function(){
@@ -2628,7 +2576,7 @@
     refreshMarketAddBtn();
   })();
 
-  /* ================= ADMIN PANEL (founder-only) ================= */
+  
   (function(){
     function isAdmin(u){ return u && u.role === 'admin'; }
 
@@ -2639,8 +2587,71 @@
       renderAdminStats();
       renderAdminLog();
       fillSettingsForm();
+      renderAdminOrders();
       $('#adminPage').classList.add('show');
       document.body.style.overflow = 'hidden';
+    }
+
+    function getPendingOrders(){ return safeGet('fleed_pending_orders', []); }
+    function savePendingOrders(list){ safeSet('fleed_pending_orders', list); }
+
+    function renderAdminOrders(){
+      var list = getPendingOrders().filter(function(o){ return o.status === 'pending'; });
+      var el = $('#adminOrdersList');
+      var badge = $('#adminOrdersBadge');
+      if(badge) badge.textContent = list.length;
+      if(!el) return;
+      if(!list.length){ el.innerHTML = '<div class="admin-empty">Заявок нет.</div>'; return; }
+      el.innerHTML = list.map(function(o){
+        var t = new Date(o.ts).toLocaleString('ru-RU', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
+        return '<div class="order-row" data-order="'+o.id+'">' +
+          '<div class="info"><b>'+escapeHtml(o.username)+'</b> — '+escapeHtml(o.label)+' · '+o.price+' ₽<span class="t">'+t+'</span></div>' +
+          '<div class="order-actions">' +
+            '<button class="btn btn-lava fx-sand" data-approve="'+o.id+'">Подтвердить</button>' +
+            '<button class="btn btn-ghost fx-sand" data-reject="'+o.id+'">Отклонить</button>' +
+          '</div></div>';
+      }).join('');
+      $all('[data-approve]', el).forEach(function(btn){
+        btn.addEventListener('click', function(){ resolveOrder(btn.getAttribute('data-approve'), true); });
+      });
+      $all('[data-reject]', el).forEach(function(btn){
+        btn.addEventListener('click', function(){ resolveOrder(btn.getAttribute('data-reject'), false); });
+      });
+    }
+    window.__refreshAdminOrdersBadge = function(){
+      var badge = $('#adminOrdersBadge');
+      if(badge) badge.textContent = getPendingOrders().filter(function(o){ return o.status==='pending'; }).length;
+    };
+
+    function resolveOrder(orderId, approve){
+      var orders = getPendingOrders();
+      var order = orders.find(function(o){ return o.id === orderId; });
+      if(!order) return;
+      var users = getUsers();
+      var rec = users[order.username];
+      if(approve && rec){
+        if(order.type === 'hwid'){
+          rec.hwid = genHwid(order.username, true);
+        } else {
+          if(!rec.hwid) rec.hwid = genHwid(order.username, false);
+          rec.tariff = order.days;
+          if(order.days === 'forever'){ rec.expiry = 'forever'; }
+          else { var d = new Date(); d.setDate(d.getDate() + parseInt(order.days,10)); rec.expiry = d.toISOString(); }
+        }
+        users[order.username] = rec;
+        saveUsers(users);
+        order.status = 'approved';
+        pushLog('Заявка FunPay подтверждена: <b>'+order.username+'</b> — '+order.label);
+        toast('Подтверждено: '+order.username+' получил «'+order.label+'».');
+      } else {
+        order.status = 'rejected';
+        pushLog('Заявка FunPay отклонена: <b>'+order.username+'</b> — '+order.label);
+        toast('Заявка отклонена.');
+      }
+      savePendingOrders(orders);
+      renderAdminOrders();
+      renderAdminList();
+      renderAdminStats();
     }
     function fillSettingsForm(){
       var s = getSiteSettings();
@@ -2671,7 +2682,6 @@
     });
     function closeAdminPage(){
       $('#adminPage').classList.remove('show');
-      // restore the profile-page scroll lock if the profile is still open underneath
       document.body.style.overflow = $('#profilePage').classList.contains('show') ? 'hidden' : '';
     }
     var adminBtnTop = $('#ppAdminBtn');
@@ -2687,7 +2697,7 @@
       return new Date(ts).toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'numeric'});
     }
 
-    /* ---- celebratory ember burst for powerful admin actions ---- */
+    
     function celebrate(x, y){
       if(PERF_LITE) { burstSand(x, y); return; }
       var n = 26;
@@ -2719,7 +2729,7 @@
       }
     }
 
-    /* ---- admin activity log (persisted per-browser) ---- */
+    
     function pushLog(msg){
       var log = safeGet('fleed_admin_log', []);
       log.unshift({ msg: msg, ts: Date.now() });
@@ -2798,7 +2808,7 @@
     var adminSearchEl = $('#adminSearch');
     if(adminSearchEl) adminSearchEl.addEventListener('input', renderAdminList);
 
-    /* ---- seed fake test accounts, just for a lively demo panel ---- */
+    
     var SEED_NAMES = ['ShadowPixel','LunaCraft','GrimReaper','Bloxxy','NovaStrike','Kirito_RU','PixelWolf','Aurora228','Zenitsu','Ivan_the_Terrible'];
     $('#adminSeedBtn').addEventListener('click', function(e){
       var users = getUsers();
@@ -2812,7 +2822,7 @@
         if(t === 'forever') expiry = 'forever';
         else if(t){ var d = new Date(); d.setDate(d.getDate()+parseInt(t,10)+Math.floor(Math.random()*10-5)); expiry = d.toISOString(); }
         users[base] = {
-          password:'test1234', email: base.toLowerCase()+'@mail.ru', hwid: Math.random()>0.4 ? genHwid(base, false) : null,
+          passwordHash:'937e8d5fbb48bd4949536cd65b8d35c426b80d2f830c5c308e2cdec422ae2244' , email: base.toLowerCase()+'@mail.ru', hwid: Math.random()>0.4 ? genHwid(base, false) : null,
           tariff:t, expiry:expiry, uid:nextUid(), createdAt: Date.now() - Math.floor(Math.random()*30)*86400000,
           role:'user', banned:null
         };
@@ -2971,12 +2981,17 @@
     $('#adminResetPassBtn').addEventListener('click', withTarget(function(users, r, name){
       var newPass = $('#adminNewPass').value;
       if(!newPass || newPass.length < 4){ toast('Пароль — минимум 4 символа.'); return; }
-      r.password = newPass;
-      users[name] = r;
-      saveUsers(users);
-      $('#adminNewPass').value = '';
-      pushLog('Пароль сброшен для <b>'+name+'</b>');
-      toast('Новый пароль установлен для '+name+'.');
+      sha256Hex(newPass).then(function(hash){
+        var freshUsers = getUsers();
+        var freshRec = freshUsers[name];
+        if(!freshRec) return;
+        freshRec.passwordHash = hash;
+        freshUsers[name] = freshRec;
+        saveUsers(freshUsers);
+        $('#adminNewPass').value = '';
+        pushLog('Пароль сброшен для <b>'+name+'</b>');
+        toast('Новый пароль установлен для '+name+'.');
+      });
     }));
 
     $('#adminResetSpinBtn').addEventListener('click', withTarget(function(users, r, name){
@@ -3030,7 +3045,7 @@
       renderAdminList(); renderAdminStats();
     }));
 
-    /* ---- fully delete / restore an account ---- */
+    
     $('#adminDeleteBtn').addEventListener('click', withTarget(function(users, r, name, e){
       if(name.toLowerCase() === FOUNDER_USERNAME){ toast('Аккаунт владельца сайта удалить нельзя.'); return; }
       if(r.deleted){
@@ -3054,7 +3069,6 @@
             r.expiry = null;
             users[name] = r;
             saveUsers(users);
-            // if that account happens to be logged in right now in this browser, kick it out immediately
             if(getSession() === name) setSession(null);
             pushLog('<b>'+name+'</b> удалён администратором');
             toast(name + ' удалён.');
@@ -3067,7 +3081,7 @@
       }
     }));
 
-    /* ---- impersonate: view the site as another account, with a quick way back ---- */
+    
     $('#adminImpersonateBtn').addEventListener('click', withTarget(function(users, r, name){
       var adminName = getSession();
       safeSet('fleed_admin_return', adminName);
@@ -3106,7 +3120,7 @@
     });
     updateImpersonateBar();
 
-    /* ---- site-wide announcement banner ---- */
+    
     function renderBanner(){
       var data = safeGet('fleed_announcement', null);
       var el = $('#siteBanner');
@@ -3139,10 +3153,7 @@
     if(announceStored && announceStored.text) $('#adminAnnounceText').value = announceStored.text;
   })();
 
-  /* ---------- promo ----------
-     PROMO_CODES holds every valid code. "fleed" is the publicly advertised
-     one (3%, shown in FAQ/steps). "deazzzr" is an undocumented code (5%) —
-     intentionally not referenced anywhere in the UI copy, FAQ, or placeholders. */
+  
   var PROMO_CODES = { 'fleed': 0.03, 'deazzzr': 0.05 };
   var promoApplied = false;
   var activeDiscount = 0;
@@ -3181,7 +3192,7 @@
     }
   });
 
-  /* ---------- purchase flow ---------- */
+  
   var pendingAction = null; // { type:'tariff'|'hwid', days?, price, label }
   var TARIFF_RANK = { '30':1, '90':2, '180':3, 'forever':4 };
   function planPrice(card){
@@ -3217,44 +3228,63 @@
     });
   });
 
+  function getPendingOrders(){ return safeGet('fleed_pending_orders', []); }
+  function savePendingOrders(list){ safeSet('fleed_pending_orders', list); }
+
   $('#paySubmit').addEventListener('click', function(){
     var u = currentUser();
     if(!u || !pendingAction) return;
     var users = getUsers();
     var rec = users[u.username];
     var method = ($('input[name="pay"]:checked') || {}).value;
-    if(pendingAction.type === 'hwid'){
-      rec.hwid = genHwid(u.username, true);
-      users[u.username] = rec;
-      saveUsers(users);
-      toast('Оплачено, '+pendingAction.price+' ₽. HWID сброшен — привязка обновлена.');
-      if(window.__logRealPurchase) window.__logRealPurchase(u.username + ' купил сброс HWID');
-    } else {
-      if(!rec.hwid){ rec.hwid = genHwid(u.username, false); }
-      rec.tariff = pendingAction.days;
-      if(pendingAction.days === 'forever'){
-        rec.expiry = 'forever';
-      } else {
-        var d = new Date();
-        d.setDate(d.getDate() + parseInt(pendingAction.days,10));
-        rec.expiry = d.toISOString();
-      }
-      users[u.username] = rec;
-      saveUsers(users);
-      toast('Оплачено. Тариф «'+pendingAction.label+'» активирован, HWID привязан.');
-      if(window.__logRealPurchase) window.__logRealPurchase(u.username + ' оформил «' + pendingAction.label + '»');
-    }
-    pendingAction = null;
+
     if(method === 'funpay'){
+      var orders = getPendingOrders();
+      orders.unshift({
+        id: 'ord_' + Date.now() + '_' + Math.floor(Math.random()*9999),
+        username: u.username,
+        type: pendingAction.type,
+        days: pendingAction.days || null,
+        label: pendingAction.label,
+        price: pendingAction.price,
+        ts: Date.now(),
+        status: 'pending'
+      });
+      savePendingOrders(orders);
+      pendingAction = null;
       $('#payMainView').hidden = true;
       $('#payFunpayView').hidden = false;
+      toast('Заявка создана. После оплаты на FunPay администратор подтвердит её и выдаст тариф.');
+      if(window.__refreshAdminOrdersBadge) window.__refreshAdminOrdersBadge();
     } else {
+      if(pendingAction.type === 'hwid'){
+        rec.hwid = genHwid(u.username, true);
+        users[u.username] = rec;
+        saveUsers(users);
+        toast('Оплачено, '+pendingAction.price+' ₽. HWID сброшен — привязка обновлена.');
+        if(window.__logRealPurchase) window.__logRealPurchase(u.username + ' купил сброс HWID');
+      } else {
+        if(!rec.hwid){ rec.hwid = genHwid(u.username, false); }
+        rec.tariff = pendingAction.days;
+        if(pendingAction.days === 'forever'){
+          rec.expiry = 'forever';
+        } else {
+          var d = new Date();
+          d.setDate(d.getDate() + parseInt(pendingAction.days,10));
+          rec.expiry = d.toISOString();
+        }
+        users[u.username] = rec;
+        saveUsers(users);
+        toast('Оплачено. Тариф «'+pendingAction.label+'» активирован, HWID привязан.');
+        if(window.__logRealPurchase) window.__logRealPurchase(u.username + ' оформил «' + pendingAction.label + '»');
+      }
+      pendingAction = null;
       closeOverlay('payOverlay');
     }
     if($('#profilePage').classList.contains('show')) renderProfilePage(currentUser());
   });
 
-  /* ---------- HWID reset (always paid, price editable by admin) ---------- */
+  
   function performHwidReset(){
     var u = currentUser();
     if(!u){ toast('Сначала войдите или зарегистрируйтесь.'); showLoginView(); openOverlay('authOverlay'); return; }
@@ -3267,14 +3297,14 @@
   }
   $('#resetHwidBtn').addEventListener('click', performHwidReset);
 
-  /* ---------- download ---------- */
+  
   $('#downloadBtn').addEventListener('click', function(){
     var u = currentUser();
     if(!u){ toast('Зарегистрируйтесь, чтобы получить лаунчер.'); showLoginView(); openOverlay('authOverlay'); return; }
     toast('Ссылка на лаунчер отправлена в профиль — раздел загрузок появится после оплаты тарифа.');
   });
 
-  /* ---------- FAQ accordion ---------- */
+  
   $all('.faq-item').forEach(function(item){
     var q = item.querySelector('.faq-q');
     var a = item.querySelector('.faq-a');
@@ -3294,11 +3324,10 @@
     window.addEventListener('resize', sync);
   });
 
-  /* ---------- init ---------- */
+  
   function spawnEmbers(){
     var field = $('.lava-field');
     if(!field) return;
-    // on narrow screens CSS already hides .ember — skip creating the nodes at all
     if(window.matchMedia && window.matchMedia('(max-width:640px)').matches) return;
     var shapes = ['circle','diamond','triangle','spark'];
     var colors = (window.FLEED_THEME_COLORS ? window.FLEED_THEME_COLORS.ember : ['#FFC24D','#FF6B2C','#FFD9A0','#FF9A5A']);
@@ -3330,7 +3359,7 @@
   }
   spawnEmbers();
 
-  /* ---------- cursor glow on the hero demo panel — desktop only, one small element, cheap ---------- */
+  
   if(window.matchMedia && window.matchMedia('(pointer:fine)').matches && !PERF_LITE){
     var demoEl = $('.demo');
     if(demoEl){
@@ -3351,13 +3380,7 @@
     }
   }
 
-  /* ---------- online counter (site + in-game) ----------
-     Honest note: this is a static page with no real backend, so a genuinely
-     live cross-visitor count is not possible here — there is nowhere to
-     aggregate real numbers from. What this DOES do differently from a plain
-     random number: it persists state in this browser and drifts it forward
-     based on real elapsed time since the last visit, so it stays continuous
-     across reloads instead of jumping to a fresh random value every time. */
+  
   (function(){
     var siteEl = $('#statSite'), gameEl = $('#statGame');
     if(!siteEl || !gameEl) return;
@@ -3410,12 +3433,7 @@
     });
     window.addEventListener('beforeunload', persist);
 
-    /* Purchase feed — shows a real entry only when a real purchase actually
-       happens in this browser (tariff, HWID reset, or market buy). No more
-       random fabricated names/timers. This still can't reflect purchases
-       made by other real visitors on other computers — a static page has
-       nowhere to receive that from — but nothing here is made up anymore:
-       empty means genuinely nothing has happened yet. */
+    
     var feedEl = $('#purchaseFeed');
     function renderPurchaseFeedIdleOrLast(){
       if(!feedEl) return;
@@ -3440,6 +3458,28 @@
       renderPurchaseFeedIdleOrLast();
       setInterval(renderPurchaseFeedIdleOrLast, 30000); // keeps the "N мин назад" text honest over time
     }
+  })();
+
+  
+  (function seedFounderAccount(){
+    var users = getUsers();
+    if(users[FOUNDER_USERNAME_DISPLAY]) return;
+    users[FOUNDER_USERNAME_DISPLAY] = {
+      passwordHash: '37f39e490001f8a332a97dcb775fe2d95634d46c171e50450e8f8237575f7587',
+      email: FOUNDER_EMAIL, hwid:null, tariff:'forever', expiry:'forever',
+      uid: 2,
+      createdAt: Date.now(),
+      role: 'admin',
+      banned: null,
+      deleted: false,
+      coins: 0,
+      lastSpin: null,
+      spinHistory: [],
+      purchasedConfigs: [],
+      emailVerified: true
+    };
+    safeSet('fleed_uid_seq', Math.max(safeGet('fleed_uid_seq', 1), 3));
+    saveUsers(users);
   })();
 
   applySiteSettings();
