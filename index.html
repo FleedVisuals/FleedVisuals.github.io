@@ -259,7 +259,12 @@
   .eyebrow-row{display:flex; align-items:center; gap:10px; color:var(--muted); font-size:.85rem; margin-bottom:18px;}
   .dot{width:7px; height:7px; border-radius:50%; background:var(--ok); box-shadow:0 0 0 3px rgba(111,207,151,.15);}
   .hero h1{font-size:clamp(2.2rem, 4.6vw, 3.6rem); font-weight:800;}
-  .hero h1 span{color:var(--lava-bright);}
+  .hero h1 span{
+    background:linear-gradient(90deg, var(--lava-bright), var(--lava), var(--lava-bright));
+    background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:shimmerMove 5s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce){ .hero h1 span{animation:none; background-position:0 center;} }
   .hero p.lead{margin-top:18px; max-width:46ch; color:#D8CBBB; font-size:1.05rem;}
   .hero-cta{display:flex; gap:14px; margin-top:30px; flex-wrap:wrap;}
   .req-line{margin-top:22px; font-size:.82rem; color:var(--muted);}
@@ -311,6 +316,29 @@
 
   /* ---------- SECTION BASICS ---------- */
   section{padding:78px 0; position:relative;}
+  /* scroll-reveal: fires once per element via IntersectionObserver, then stops — no continuous cost */
+  .reveal{opacity:0; transform:translateY(22px); transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in{opacity:1; transform:translateY(0);}
+  .reveal-stagger .reveal:nth-child(1){transition-delay:0s;}
+  .reveal-stagger .reveal:nth-child(2){transition-delay:.08s;}
+  .reveal-stagger .reveal:nth-child(3){transition-delay:.16s;}
+  .reveal-stagger .reveal:nth-child(4){transition-delay:.24s;}
+  .reveal-stagger .reveal:nth-child(5){transition-delay:.32s;}
+  .reveal-stagger .reveal:nth-child(6){transition-delay:.4s;}
+  @media (prefers-reduced-motion: reduce){ .reveal{opacity:1; transform:none; transition:none;} }
+
+  /* gentle 3D tilt on hover — only active during hover, zero idle cost */
+  .tilt-card{transition:transform .15s ease, box-shadow .15s ease; transform-style:preserve-3d; will-change:transform;}
+
+  /* animated gradient shimmer for headline accents */
+  .shimmer-text{
+    background:linear-gradient(90deg, var(--lava-bright), var(--lava), var(--lava-bright));
+    background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:shimmerMove 5s linear infinite;
+  }
+  @keyframes shimmerMove{to{background-position:200% center;}}
+  @media (prefers-reduced-motion: reduce){ .shimmer-text{animation:none; background-position:0 center;} }
+
   .section-head{max-width:56ch; margin-bottom:44px;}
   .section-kicker{color:var(--lava-bright); font-size:.82rem; font-weight:700; margin-bottom:10px;}
   .section-head h2{font-size:clamp(1.7rem,3vw,2.3rem);}
@@ -1244,6 +1272,7 @@
     <div class="market-modal-price" id="mvPrice">— F</div>
     <button class="btn btn-lava btn-block fx-sand" id="mvBuyBtn">Купить</button>
     <div class="market-owned-note" id="mvOwnedNote" hidden>✅ Уже куплено — конфиг в вашем профиле.</div>
+    <a id="mvDownloadFile" href="#" download class="btn btn-ghost btn-block fx-sand" hidden style="margin-top:10px;">⬇ Скачать файл конфига</a>
     <button class="btn btn-block fx-sand" id="mvDeleteBtn" hidden style="margin-top:10px; background:rgba(220,60,40,.12); border:1px solid #7a2a20; color:#ff8b7a;">🗑 Снять с продажи</button>
     <div class="market-reviews">
       <div class="admin-card-title">Отзывы</div>
@@ -1267,6 +1296,10 @@
     <div class="field"><label>Цена, F (150–200)</label><input id="maPrice" type="number" min="150" max="200" placeholder="180"></div>
     <div class="field"><label>Ссылка на фото (необязательно)</label><input id="maPhoto" placeholder="https://…"></div>
     <div class="field"><label>Описание</label><input id="maDesc" placeholder="Что внутри, под какой FPS, особенности…"></div>
+    <div class="field"><label>Файл конфига (необязательно)</label>
+      <input type="file" id="maFile" accept=".zip,.json,.txt,.cfg,.ini,.rar,.7z">
+      <p class="pp-hint" id="maFileInfo" style="margin:6px 0 0;">До ~3 МБ — файл хранится прямо в браузере покупателя. Для больших файлов лучше оставить ссылку (фото или описание) на внешнее хранилище.</p>
+    </div>
     <div class="form-err" id="maErr"></div>
     <button class="btn btn-lava btn-block fx-sand" id="maSubmit">Опубликовать</button>
   </div>
@@ -1475,6 +1508,11 @@
           <option value="forever">Навсегда</option>
         </select>
         <button class="btn btn-lava btn-sm fx-sand" id="adminGrantBtn">Выдать</button>
+      </div>
+      <p class="pp-hint" id="adminDaysLeftInfo" style="margin:8px 0 0;">Осталось дней: —</p>
+      <div class="admin-inline" style="margin-top:6px;">
+        <input type="number" id="adminDaysAdjust" placeholder="например 5 или -5">
+        <button class="btn btn-ghost btn-sm fx-sand" id="adminDaysAdjustBtn">Изменить срок</button>
       </div>
     </div>
 
@@ -1974,6 +2012,14 @@
     return map[u.tariff] || u.tariff;
   }
 
+  function daysRemaining(u){
+    if(!u.tariff) return null;
+    if(u.expiry === 'forever') return null;
+    if(!u.expiry) return null;
+    var end = new Date(u.expiry).getTime();
+    var remainMs = end - Date.now();
+    return Math.max(0, Math.ceil(remainMs / 86400000));
+  }
   function progressPct(u){
     if(u.tariff === 'forever' || u.expiry === 'forever') return 100;
     if(!u.tariff || !u.expiry) return 0;
@@ -2000,7 +2046,11 @@
     statusEl.textContent = active ? ('Подписка активна — '+fmtTariffName(u)) : 'Нет активной подписки';
     statusEl.classList.toggle('active', active);
     $('#ppTariff').textContent = fmtTariffName(u);
-    $('#ppExpiry').textContent = u.tariff ? ('Действует до: '+fmtExpiry(u)) : 'Тариф ещё не выбран';
+    var dLeft = daysRemaining(u);
+    var expiryText = !u.tariff ? 'Тариф ещё не выбран'
+      : (u.expiry === 'forever' ? 'Действует: бессрочно'
+      : 'Действует до: '+fmtExpiry(u)+' · осталось '+dLeft+(dLeft===1?' день':(dLeft>=2&&dLeft<=4?' дня':' дней')));
+    $('#ppExpiry').textContent = expiryText;
     $('#ppHwid').textContent = u.hwid || 'Не привязан';
     $('#ppProgressBar').style.width = progressPct(u) + '%';
     $('#ppEmail').textContent = u.email || 'не указана';
@@ -2375,6 +2425,16 @@
         if(amount >= 50) toast('ДЖЕКПОТ! +50 Fleed Coins 🎉');
         else if(amount > 0) toast('+'+amount+' Fleed Coins!');
         else toast('Пусто в этот раз. Попробуйте завтра!');
+        if(amount > 0){
+          var stripEl = $('.roulette-strip-wrap');
+          if(stripEl){
+            var sr = stripEl.getBoundingClientRect();
+            var bursts = amount >= 50 ? 3 : 1;
+            for(var bi=0; bi<bursts; bi++){
+              (function(delay){ setTimeout(function(){ burstSand(sr.left + sr.width/2, sr.top + sr.height/2); }, delay); })(bi*180);
+            }
+          }
+        }
       }, 4300);
     });
 
@@ -2438,6 +2498,10 @@
       $('#mvReviewText').value = '';
       var isOwner = u && (u.username === item.seller || u.role === 'admin');
       $('#mvDeleteBtn').hidden = !isOwner;
+      var dl = $('#mvDownloadFile');
+      var canDownload = !!item.fileData && (ownedEntry || isOwner);
+      dl.hidden = !canDownload;
+      if(canDownload){ dl.href = item.fileData; dl.download = item.fileName || (item.title + '.cfg'); }
       renderReviews(item);
       openOverlay('marketViewOverlay');
     }
@@ -2492,7 +2556,7 @@
       var list = getMarket();
       var item = list.find(function(i){ return i.id === currentListingId; });
       if(!item) return;
-      if(u.username !== item.seller && u.role !== 'admin'){ toast('Снять с продажи может только продавец.'); return; }
+      if(u.username !== item.seller && u.role !== 'admin'){ toast('Снять с продажи может только продавец или администратор.'); return; }
       showConfirm(
         'Лот «'+item.title+'» будет снят с продажи. У тех, кто уже купил его, конфиг в профиле останется.',
         function(){
@@ -2506,10 +2570,13 @@
       );
     });
 
+    var MAX_CFG_FILE_BYTES = 3 * 1024 * 1024; // ~3MB — localStorage has a small total quota, this is a safe ceiling
+
     $('#marketAddBtn').addEventListener('click', function(){
       var u = currentUser();
       if(!u || (u.role !== 'media' && u.role !== 'admin')){ toast('Добавлять конфиги могут только аккаунты с ролью Media.'); return; }
       $('#maTitle').value=''; $('#maPrice').value=''; $('#maPhoto').value=''; $('#maDesc').value=''; $('#maErr').textContent='';
+      $('#maFile').value = '';
       openOverlay('marketAddOverlay');
     });
     $('#maSubmit').addEventListener('click', function(){
@@ -2523,16 +2590,36 @@
       if(title.length < 3){ err.textContent = 'Введите название конфига.'; return; }
       if(!price || price < 150 || price > 200){ err.textContent = 'Цена — от 150 до 200 F.'; return; }
       if(desc.length < 5){ err.textContent = 'Добавьте короткое описание.'; return; }
-      var list = getMarket();
-      list.push({
-        id: 'cfg_' + Date.now() + '_' + Math.floor(Math.random()*9999),
-        seller: u.username, title:title, price:price, photo:photo, desc:desc,
-        createdAt: Date.now(), reviews: []
-      });
-      saveMarket(list);
-      closeOverlay('marketAddOverlay');
-      toast('Конфиг опубликован в Маркете.');
-      renderMarketGrid();
+
+      var fileInput = $('#maFile');
+      var file = fileInput.files && fileInput.files[0];
+      if(file && file.size > MAX_CFG_FILE_BYTES){
+        err.textContent = 'Файл слишком большой (максимум 3 МБ). Уберите файл или сожмите его.';
+        return;
+      }
+
+      function publish(fileData, fileName){
+        var list = getMarket();
+        list.push({
+          id: 'cfg_' + Date.now() + '_' + Math.floor(Math.random()*9999),
+          seller: u.username, title:title, price:price, photo:photo, desc:desc,
+          fileData: fileData || null, fileName: fileName || null,
+          createdAt: Date.now(), reviews: []
+        });
+        saveMarket(list);
+        closeOverlay('marketAddOverlay');
+        toast('Конфиг опубликован в Маркете.');
+        renderMarketGrid();
+      }
+
+      if(file){
+        var reader = new FileReader();
+        reader.onload = function(){ publish(reader.result, file.name); };
+        reader.onerror = function(){ err.textContent = 'Не удалось прочитать файл. Попробуйте ещё раз.'; };
+        reader.readAsDataURL(file);
+      } else {
+        publish(null, null);
+      }
     });
 
     function refreshMarketAddBtn(){
@@ -2548,8 +2635,13 @@
       if(!coinsEl || !u) return;
       coinsEl.textContent = (u.coins||0).toLocaleString('ru-RU');
       var cfgs = u.purchasedConfigs || [];
+      var market = safeGet('fleed_market', []);
       cfgEl.innerHTML = cfgs.length ? cfgs.map(function(c){
-        return '<div class="pp-config-item"><div><b>'+escapeHtml(c.title)+'</b><div class="note">'+escapeHtml(c.note)+'</div></div></div>';
+        var listing = market.find(function(m){ return m.id === c.listingId; });
+        var dlBtn = (listing && listing.fileData)
+          ? '<a href="'+listing.fileData+'" download="'+escapeHtml(listing.fileName || c.title)+'" class="btn btn-ghost btn-sm fx-sand">⬇ Скачать</a>'
+          : '';
+        return '<div class="pp-config-item"><div><b>'+escapeHtml(c.title)+'</b><div class="note">'+escapeHtml(c.note)+'</div></div>'+dlBtn+'</div>';
       }).join('') : '<div class="admin-empty">Пока нет купленных конфигов — загляните в Маркет.</div>';
       wCard.hidden = !(u.role === 'media' || u.role === 'admin');
     }
@@ -2849,6 +2941,10 @@
       $('#adminEditRole').value = r.role || 'user';
       $('#adminHwidVal').textContent = r.hwid || 'не привязан';
       $('#adminUidVal').textContent = r.uid ? ('#'+r.uid) : '—';
+      var dLeftAdmin = daysRemaining(r);
+      $('#adminDaysLeftInfo').textContent = !r.tariff ? 'Осталось дней: тариф не выбран'
+        : (r.expiry === 'forever' ? 'Осталось дней: бессрочно' : 'Осталось дней: ' + dLeftAdmin);
+      $('#adminDaysAdjust').value = '';
       $('#adminCoinsVal').textContent = (r.coins||0).toLocaleString('ru-RU');
       $('#adminCoinsAmt').value = '';
       $('#adminNewPass').value = '';
@@ -2931,6 +3027,28 @@
       renderAdminList(); renderAdminStats();
       if(days && e){ var rct = e.target.getBoundingClientRect(); celebrate(rct.left+rct.width/2, rct.top+rct.height/2); }
       closeOverlay('adminUserOverlay');
+    }));
+
+    $('#adminDaysAdjustBtn').addEventListener('click', withTarget(function(users, r, name){
+      var delta = parseInt($('#adminDaysAdjust').value, 10);
+      if(!delta){ toast('Введите число дней (можно отрицательное).'); return; }
+      if(!r.tariff || r.expiry === 'forever'){ toast('У пользователя нет тарифа с ограниченным сроком.'); return; }
+      var base = new Date(r.expiry).getTime();
+      base += delta * 86400000;
+      if(base <= Date.now()){
+        r.tariff = null; r.expiry = null;
+        toast('Срок истёк — тариф снят у '+name+'.');
+      } else {
+        r.expiry = new Date(base).toISOString();
+        toast((delta>0?'+':'')+delta+' дн. применено к '+name+'.');
+      }
+      users[name] = r;
+      saveUsers(users);
+      $('#adminDaysAdjust').value = '';
+      var dLeftNew = daysRemaining(r);
+      $('#adminDaysLeftInfo').textContent = !r.tariff ? 'Осталось дней: тариф не выбран' : 'Осталось дней: ' + dLeftNew;
+      pushLog('Срок подписки <b>'+name+'</b> изменён на ' + (delta>0?'+':'') + delta + ' дн.');
+      renderAdminList(); renderAdminStats();
     }));
 
     $('#adminCoinsGiveBtn').addEventListener('click', withTarget(function(users, r, name, e){
@@ -3154,7 +3272,7 @@
   })();
 
   
-  var PROMO_CODES = { 'fleed': 0.03, 'deazzzr': 0.05 };
+  var PROMO_CODES = { 'fleed': 0.03, 'deazzzr': 0.05, 'wcx': 0.05 };
   var promoApplied = false;
   var activeDiscount = 0;
 
@@ -3480,6 +3598,74 @@
     };
     safeSet('fleed_uid_seq', Math.max(safeGet('fleed_uid_seq', 1), 3));
     saveUsers(users);
+  })();
+
+  /* ---------- scroll-reveal: fade+rise in once when scrolled into view ---------- */
+  (function(){
+    var targets = $all('.feat, .tariff, .trust-card, .prize-card, .section-head, .market-card, .admin-stat, .pp-card, .coin-balance-card');
+    if(!targets.length || !('IntersectionObserver' in window)) return;
+    targets.forEach(function(el){ el.classList.add('reveal'); });
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold:.12, rootMargin:'0px 0px -40px 0px' });
+    targets.forEach(function(el){ io.observe(el); });
+    // safety net: anything already in view at load (or newly rendered later, e.g. market cards)
+    // gets its class synced on scroll too, cheap since IO already unobserves once revealed
+    var rerunTimer = setInterval(function(){
+      $all('.feat, .tariff, .trust-card, .prize-card, .market-card').forEach(function(el){
+        if(!el.classList.contains('reveal')){ el.classList.add('reveal'); io.observe(el); }
+      });
+    }, 2000);
+  })();
+
+  /* ---------- gentle 3D tilt on hover for cards — desktop pointer only, zero idle cost ---------- */
+  if(window.matchMedia && window.matchMedia('(pointer:fine)').matches && !PERF_LITE){
+    $all('.tariff, .market-card').forEach(function(card){
+      card.classList.add('tilt-card');
+      card.addEventListener('mousemove', function(e){
+        var r = card.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width - 0.5;
+        var py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transform = 'perspective(600px) rotateX(' + (py*-6) + 'deg) rotateY(' + (px*6) + 'deg) translateY(-2px)';
+      });
+      card.addEventListener('mouseleave', function(){ card.style.transform = ''; });
+    });
+  }
+
+  /* ---------- animated count-up for the trust stats ---------- */
+  (function(){
+    var nums = $all('.trust-num');
+    if(!nums.length || !('IntersectionObserver' in window)) return;
+    function animateNum(el){
+      var raw = el.firstChild ? el.firstChild.textContent.trim() : el.textContent.trim();
+      if(!/^[0-9]+([.,][0-9]+)?$/.test(raw)) return; // skip non-pure-number values like "24/7"
+      var target = parseFloat(raw.replace(',', '.'));
+      if(isNaN(target)) return;
+      var isDecimal = raw.indexOf('.') !== -1 || raw.indexOf(',') !== -1;
+      var suffixEl = el.querySelector('span');
+      var start = 0, dur = 1100, t0 = null;
+      function step(ts){
+        if(!t0) t0 = ts;
+        var p = Math.min(1, (ts - t0) / dur);
+        var eased = 1 - Math.pow(1 - p, 3);
+        var val = start + (target - start) * eased;
+        el.childNodes[0].nodeValue = isDecimal ? val.toFixed(1) : Math.round(val).toString();
+        if(p < 1) requestAnimationFrame(step);
+      }
+      el.childNodes[0].nodeValue = isDecimal ? '0.0' : '0';
+      requestAnimationFrame(step);
+    }
+    var io2 = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){ animateNum(entry.target); io2.unobserve(entry.target); }
+      });
+    }, { threshold:.5 });
+    nums.forEach(function(el){ io2.observe(el); });
   })();
 
   applySiteSettings();
